@@ -4,8 +4,8 @@ Connect ESP32 on the same network with server
 
 ## Demo
 
-![alt text](./images/IMG_3003.jpeg)
+<img src="./images/IMG_3003.jpeg" height="auto" width="400">
 
-![alt](./images/1715216756.gif)
+<img src="./images/1715216756.gif" height="auto" width="400" style="margin-top: 40px;">
 
-![alt](./images/17152167562.gif)
+<img src="./images/17152167562.gif" height="auto" width="400" style="margin-top: 40px;">

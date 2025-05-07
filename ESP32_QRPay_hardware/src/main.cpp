@@ -1,7 +1,17 @@
+#include <WiFi.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+
+#define INTERNAL_QR // Comment this line to use QR code generator from server
+
+#if defined(INTERNAL_QR)
+#include "qr_utils.h"
+QRCode qrcode;
+#else
 #include "httpclient_utils.h"
+HTTPClient http;
+#endif
 
 #define WIFI_SSID ""
 #define WIFI_PASS ""
@@ -10,7 +20,6 @@
 #define SCREEN_HEIGHT 64
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-HTTPClient http;
 
 void connect_wifi()
 {
@@ -21,6 +30,17 @@ void connect_wifi()
     Serial.println("Connecting to WiFi..");
   }
 }
+
+
+#if defined(INTERNAL_QR)
+
+void displayTransactionQRCode(uint32_t amount = 0)
+{
+  generateTransactionQR(&qrcode, amount);
+  displayQR(&display, &qrcode, 0, 0, 30);
+}
+
+#else
 
 void stringDataToBuffer(String str, uint8_t *buf)
 {
@@ -51,6 +71,9 @@ void displayTransactionQRCode(uint32_t amount = 0)
   display.display();
 }
 
+#endif
+
+
 void setup()
 {
   // Button to random amount
@@ -70,7 +93,9 @@ void setup()
   }
 
   // Connect to the same network with server
+  #ifndef INTERNAL_QR
   connect_wifi();
+  #endif
 
   // Initialize display
   display.clearDisplay();

@@ -6,6 +6,9 @@ const { generateTransactionQRCode } = require('./qr-utils');
 const SERVER_PORT = 3008;
 const app = express();
 
+app.get('/', async function (req, res) {
+    res.status(200).send('Hello World');
+})
 
 // Test API with amount
 // Example: http://localhost:3008/test/10000
@@ -44,23 +47,31 @@ app.get('/qr/:bank/:account/:amount', async function (req, res) {
 
     try {
         // Generate QR code
-        const imgPath = generateTransactionQRCode({
-            bank,
-            account,
-            amount,
-            content,
-            size
-        });
-
         if (ret === 'image') {
+            const dataurl = await generateTransactionQRCode({
+                bank,
+                account,
+                amount,
+                content,
+                size,
+                type: 'DATAURL'
+            });
             res.setHeader('Content-Type', 'image/png');
-            fs.createReadStream(imgPath).pipe(res);
-            return;
+            res.send(Buffer.from(dataurl.split('base64,')[1], 'base64'));
+        } else {
+            const imgPath = await generateTransactionQRCode({
+                bank,
+                account,
+                amount,
+                content,
+                size,
+                type: 'file'
+            });
+            // Convert QR code to BMP
+            const bitmap = await convertToBMP(imgPath);
+            res.setHeader('Content-Type', 'text/plain');
+            res.send(bitmap);
         }
-
-        // Convert QR code to BMP
-        const bitmap = await convertToBMP(imgPath);
-        res.send(bitmap);
     } catch (err) {
         console.error('Error generating QRCode', err);
         res.status(500).send(err.message);

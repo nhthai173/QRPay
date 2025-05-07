@@ -14,7 +14,7 @@ const { QRPay, BanksObject } = require('vietnam-qr-pay');
  * @param {string} options.imgPath image path to save QR code
  * @returns {string} image path of generated QR code
  */
-module.exports.generateTransactionQRCode = function ({ bank, account, amount = 0, content = "", size = 64, imgPath = 'qr.png' } = {}) {
+module.exports.generateTransactionQRCode = async function ({ bank, account, amount = 0, content = "", size = 64, type = 'file', imgPath = 'qr.png' } = {}) {
     if (!bank || !account) {
         throw new Error('Bank and account are required');
     }
@@ -31,6 +31,10 @@ module.exports.generateTransactionQRCode = function ({ bank, account, amount = 0
     })
     const qrData = qrPay.build()
 
-    QR.toFile(imgPath, qrData, { errorCorrectionLevel: 'L', width: size, height: size, margin: 0 });
-    return imgPath;
+    if (type == 'file') {
+        await QR.toFile(imgPath, qrData, { type: "png", width: size, height: size });
+        return imgPath;
+    } else {
+        return await QR.toDataURL(qrData, { type: "image/png", width: size, height: size });
+    }
 }
